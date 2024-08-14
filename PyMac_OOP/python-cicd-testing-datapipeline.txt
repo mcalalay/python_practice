@@ -1,0 +1,12 @@
+
+            Initializing terraform directory with backend key as: python-cicd-testing-datapipeline.
+
+            Issuing Terraform apply for CICD with datapipeline as pipeline
+
+            Your AWS Codebuild Name is: python-cicd-testing-datapipeline"
+
+            Your AWS CodeCommit Name is: python-cicd-testing-datapipeline"
+
+            AWS CodePipeline Name is: python-cicd-testing-datapipeline"
+
+            Module Name is: python-cicd-testing

@@ -1,0 +1,35 @@
+version: 0.2
+
+env:
+  git-credential-helper: yes
+    
+phases:
+  install:
+    runtime-versions:
+      python: 3.8
+    commands:
+      - echo "Environment is ${ENVIRONMENT}"
+      - echo "Installation of depedency files using Python"
+      - pip install awscli pytest cfn-lint
+      - aws --version
+      - echo "Prepare installation of Terraform"
+      - wget https://releases.hashicorp.com/terraform/1.0.0/terraform_1.0.0_linux_amd64.zip
+      - unzip terraform_1.0.0_linux_amd64.zip
+      - mv terraform /bin
+  pre_build:
+    commands:
+      - echo "Prepare initialization and validation of Terraform template"
+      - terraform init -backend-config="key=${PIPELINE_NAME}-${ENVIRONMENT}.tfstate"
+      - terraform workspace select ${ENVIRONMENT} || terraform workspace new ${ENVIRONMENT}
+      - terraform validate
+  build:
+    commands:
+      - echo "Perform plan and application of Terraform template"
+      - terraform plan -var-file ./env_tfvar/${ENVIRONMENT}.tfvars
+      - terraform apply -var-file ./env_tfvar/${ENVIRONMENT}.tfvars --auto-approve
+  post_build:
+    commands:
+      - if [[ $CODEBUILD_BUILD_SUCCEEDING == 0 ]]; then exit 1; else echo "Deployment of terraform CI/CD complete"; fi
+artifacts:
+  files:
+    - ./env_tfvar/${ENVIRONMENT}.tfvars
